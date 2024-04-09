@@ -1,0 +1,200 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Essay Exam</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f3f3;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #2c3e50;
+            color: #fff;
+            padding: 1em;
+            text-align: center;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #question-display {
+            width: 80%;
+            background-color: #fff;
+            padding: 2em;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2em;
+        }
+
+        button {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background-color: #1d2731;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: #fff;
+            text-align: center;
+            padding: 1em;
+        }
+
+        #timer {
+            position: relative;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Essay Exam</h1>
+    </header>
+
+    <main>
+        <section id="question-display">
+            <h2>Write an essay on the following topic:</h2>
+            <p><strong>Topic:</strong> The Impact of Technology on Society</p>
+            <textarea id="essay-text" placeholder="Write your essay here..."></textarea>
+        </section>
+
+        <nav id="navigation">
+            <button id="submit-btn">Submit</button>
+            <button id="finish-btn" style="display: none;">Finish Exam</button>
+        </nav>
+
+        <div id="timer">10:00</div>
+    </main>
+
+    <footer>
+        &copy; 2024 @OES. All rights reserved.
+    </footer>
+
+    <script>
+        let timerInterval;
+
+        function startOrResumeTimer() {
+            const visitedBefore = sessionStorage.getItem('visitedBefore');
+            if (!visitedBefore) {
+                // Start the timer from the initial duration (10 minutes) only if the page is visited for the first time
+                startTimer(600);
+                sessionStorage.setItem('visitedBefore', 'true');
+            } else {
+                // If the page has been visited before, resume the timer from the remaining duration
+                const remainingSeconds = parseInt(sessionStorage.getItem('examTimer'), 10);
+                startTimer(remainingSeconds);
+            }
+        }
+
+        function startTimer(startSeconds) {
+            let seconds = startSeconds;
+            timerInterval = setInterval(() => {
+                seconds--;
+                if (seconds < 0) {
+                    clearInterval(timerInterval);
+                    // Disable user interaction when the timer reaches 0
+                    disableUserInteraction();
+                    return;
+                }
+                sessionStorage.setItem('examTimer', seconds.toString());
+                updateTimerDisplay(seconds);
+            }, 1000);
+        }
+
+        function updateTimerDisplay(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            document.getElementById('timer').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        function disableUserInteraction() {
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.disabled = true;
+            });
+            const textarea = document.getElementById('essay-text');
+            textarea.disabled = true;
+        }
+
+        function submitEssay() {
+            // Validate if the textarea is empty before submission
+            const essayContent = document.getElementById('essay-text').value.trim();
+            if (essayContent === "") {
+                alert("Please write your essay before submitting.");
+                return;
+            }
+            // Here you can handle the submission of the essay, such as saving it to a database or performing further processing.
+            // For demonstration purposes, let's just alert the content of the essay.
+            alert("Essay Submitted!\n\nEssay Content:\n" + essayContent);
+            // You can add further processing or redirect the user to another page after submission.
+            document.getElementById('finish-btn').style.display = 'inline-block';
+        }
+
+        function finishExam() {
+            // Reset the timer and redirect the user to the homepage
+            clearInterval(timerInterval); // Stop the timer
+            window.location.href = "getstarted.html"; // Redirect to the homepage
+        }
+
+        function initializeExam() {
+            startOrResumeTimer();
+            // Setup event listeners after initializing the exam
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('submit-btn').addEventListener('click', submitEssay);
+            document.getElementById('finish-btn').addEventListener('click', finishExam);
+        }
+
+        initializeExam();
+
+         // Store the state of the page in sessionStorage when leaving the page
+         window.addEventListener('beforeunload', function() {
+            sessionStorage.setItem('examState', JSON.stringify({ timer: document.getElementById('timer').innerText }));
+        });
+
+        // Restore the state of the page from sessionStorage when the page is loaded
+        window.addEventListener('load', function() {
+            const examState = JSON.parse(sessionStorage.getItem('examState'));
+            if (examState) {
+                document.getElementById('timer').innerText = examState.timer;
+            }
+        });
+    </script>
+</body>
+</html>
