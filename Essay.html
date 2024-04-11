@@ -96,7 +96,7 @@
             <button id="finish-btn" style="display: none;">Finish Exam</button>
         </nav>
 
-        <div id="timer">00:10</div>
+        <div id="timer">10:00</div>
     </main>
 
     <footer>
@@ -114,7 +114,7 @@
         const visitedBefore = sessionStorage.getItem('visitedBefore');
         if (!visitedBefore) {
             // Start the timer from the initial duration (10 minutes) only if the page is visited for the first time
-            startTimer(10);
+            startTimer(600);
             sessionStorage.setItem('visitedBefore', 'true');
         } else {
             // If the page has been visited before, resume the timer from the remaining duration
