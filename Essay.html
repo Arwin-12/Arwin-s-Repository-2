@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -106,19 +105,25 @@
 
     <script>
         let timerInterval;
+        let essaySubmitted = false;
 
         function startOrResumeTimer() {
-            const visitedBefore = sessionStorage.getItem('visitedBefore');
-            if (!visitedBefore) {
-                // Start the timer from the initial duration (10 minutes) only if the page is visited for the first time
-                startTimer(600);
-                sessionStorage.setItem('visitedBefore', 'true');
-            } else {
-                // If the page has been visited before, resume the timer from the remaining duration
-                const remainingSeconds = parseInt(sessionStorage.getItem('examTimer'), 10);
-                startTimer(remainingSeconds);
-            }
+    // Check if the essay has already been submitted
+    const isEssaySubmitted = sessionStorage.getItem('essaySubmitted');
+    if (!isEssaySubmitted) {
+        const visitedBefore = sessionStorage.getItem('visitedBefore');
+        if (!visitedBefore) {
+            // Start the timer from the initial duration (10 minutes) only if the page is visited for the first time
+            startTimer(600);
+            sessionStorage.setItem('visitedBefore', 'true');
+        } else {
+            // If the page has been visited before, resume the timer from the remaining duration
+            const remainingSeconds = parseInt(sessionStorage.getItem('examTimer'), 10);
+            startTimer(remainingSeconds);
         }
+    }
+}
+
 
         function startTimer(startSeconds) {
             let seconds = startSeconds;
@@ -128,6 +133,7 @@
                     clearInterval(timerInterval);
                     // Disable user interaction when the timer reaches 0
                     disableUserInteraction();
+                    checkTimerStatus(); // Check timer status when the timer reaches 0
                     return;
                 }
                 sessionStorage.setItem('examTimer', seconds.toString());
@@ -149,29 +155,56 @@
             const textarea = document.getElementById('essay-text');
             textarea.disabled = true;
         }
-
         function submitEssay() {
-            // Validate if the textarea is empty before submission
-            const essayContent = document.getElementById('essay-text').value.trim();
-            if (essayContent === "") {
-                alert("Please write your essay before submitting.");
-                return;
-            }
-            // Here you can handle the submission of the essay, such as saving it to a database or performing further processing.
-            // For demonstration purposes, let's just alert the content of the essay.
-            alert("Essay Submitted!\n\nEssay Content:\n" + essayContent);
-            // You can add further processing or redirect the user to another page after submission.
-            document.getElementById('finish-btn').style.display = 'inline-block';
-        }
+    // Validate if the textarea is empty before submission
+    const essayContent = document.getElementById('essay-text').value.trim();
+    if (essayContent === "") {
+        alert("Please write your essay before submitting.");
+        return;
+    }
+    
+    // Stop the timer only if the textarea is not empty
+    clearInterval(timerInterval);
+
+    // Here you can handle the submission of the essay, such as saving it to a database or performing further processing.
+    // For demonstration purposes, let's just alert the content of the essay.
+    alert("Essay Submitted!\n\nEssay Content:\n" + essayContent);
+
+   // Disable the textarea to prevent further editing
+    document.getElementById('essay-text').disabled = true;
+
+    // You can add further processing or redirect the user to another page after submission.
+    essaySubmitted = true;
+    document.getElementById('finish-btn').style.display = 'inline-block';
+    document.getElementById('submit-btn').disabled = true; // Disable the submit button after submission
+    sessionStorage.setItem('essaySubmitted', 'true'); // Store the essay submission status in sessionStorage
+    window.onbeforeunload = null; // Disable the refresh functionality of the browser
+}
+
 
         function finishExam() {
-            // Reset the timer and redirect the user to the homepage
+            // Reset the timer and redirect the user to "getstarted.html"
             clearInterval(timerInterval); // Stop the timer
-            window.location.href = "getstarted.html"; // Redirect to the homepage
+            sessionStorage.clear(); // Clear all sessionStorage data
+            window.location.href = "getstarted.html"; // Redirect to the getstarted page
         }
 
         function initializeExam() {
             startOrResumeTimer();
+            // Restore the content of the textarea from sessionStorage
+            const savedEssayContent = sessionStorage.getItem('essayContent');
+            if (savedEssayContent) {
+                document.getElementById('essay-text').value = savedEssayContent;
+            }
+            // Restore the essay submission status from sessionStorage
+            const isEssaySubmitted = sessionStorage.getItem('essaySubmitted');
+            if (isEssaySubmitted === 'true') {
+                essaySubmitted = true;
+                document.getElementById('finish-btn').style.display = 'inline-block';
+                document.getElementById('submit-btn').disabled = true;
+                document.getElementById('essay-text').disabled = true; // Disable the textarea
+                window.onbeforeunload = null; // Disable the refresh functionality of the browser
+            }
             // Setup event listeners after initializing the exam
             setupEventListeners();
         }
@@ -179,22 +212,20 @@
         function setupEventListeners() {
             document.getElementById('submit-btn').addEventListener('click', submitEssay);
             document.getElementById('finish-btn').addEventListener('click', finishExam);
+            // Save the content of the textarea to sessionStorage when it changes
+            document.getElementById('essay-text').addEventListener('input', function() {
+                sessionStorage.setItem('essayContent', this.value);
+            });
+        }
+
+        function checkTimerStatus() {
+            if (!essaySubmitted) {
+                // If the essay is not submitted when the timer reaches 0, automatically submit the essay
+                submitEssay();
+            }
         }
 
         initializeExam();
-
-         // Store the state of the page in sessionStorage when leaving the page
-         window.addEventListener('beforeunload', function() {
-            sessionStorage.setItem('examState', JSON.stringify({ timer: document.getElementById('timer').innerText }));
-        });
-
-        // Restore the state of the page from sessionStorage when the page is loaded
-        window.addEventListener('load', function() {
-            const examState = JSON.parse(sessionStorage.getItem('examState'));
-            if (examState) {
-                document.getElementById('timer').innerText = examState.timer;
-            }
-        });
     </script>
 </body>
 </html>
