@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Essay Exam</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f3f3;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #2c3e50;
+            color: #fff;
+            padding: 1em;
+            text-align: center;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #question-display {
+            width: 80%;
+            background-color: #fff;
+            padding: 2em;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2em;
+        }
+
+        button {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background-color: #1d2731;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: #fff;
+            text-align: center;
+            padding: 1em;
+        }
+
+        #timer {
+            position: relative;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Essay Exam</h1>
+    </header>
+
+    <main>
+        <section id="question-display">
+            <h2>Write an essay on the following topic:</h2>
+            <p><strong>Topic:</strong> The Impact of Technology on Society</p>
+            <textarea id="essay-text" placeholder="Write your essay here..."></textarea>
+        </section>
+
+        <nav id="navigation">
+            <button id="submit-btn">Submit</button>
+            <button id="finish-btn" style="display: none;">Finish Exam</button>
+        </nav>
+
+        <div id="timer">10:00</div>
+    </main>
+
+    <footer>
+        &copy; 2024 @OES. All rights reserved.
+    </footer>
+
+    <script>
+        let timerInterval;
+        let essaySubmitted = false;
+
+        function startOrResumeTimer() {
+    // Check if the essay has already been submitted
+    const isEssaySubmitted = sessionStorage.getItem('essaySubmitted');
+    if (!isEssaySubmitted) {
+        const visitedBefore = sessionStorage.getItem('visitedBefore');
+        if (!visitedBefore) {
+            // Start the timer from the initial duration (10 minutes) only if the page is visited for the first time
+            startTimer(600);
+            sessionStorage.setItem('visitedBefore', 'true');
+        } else {
+            // If the page has been visited before, resume the timer from the remaining duration
+            const remainingSeconds = parseInt(sessionStorage.getItem('examTimer'), 10);
+            startTimer(remainingSeconds);
+        }
+    }
+}
+
+        function startTimer(startSeconds) {
+            let seconds = startSeconds;
+            timerInterval = setInterval(() => {
+                seconds--;
+                if (seconds < 0) {
+                    clearInterval(timerInterval);
+                    // Disable user interaction when the timer reaches 0
+                    disableUserInteraction();
+                    checkTimerStatus(); // Check timer status when the timer reaches 0
+                    document.getElementById('finish-btn').style.display = 'inline-block'; // Show the Finish Exam button
+                    return;
+                }
+                sessionStorage.setItem('examTimer', seconds.toString());
+                updateTimerDisplay(seconds);
+            }, 1000);
+        }
+
+        function updateTimerDisplay(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            document.getElementById('timer').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        function disableUserInteraction() {
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.disabled = true;
+            });
+            const textarea = document.getElementById('essay-text');
+            textarea.disabled = true;
+        }
+        function submitEssay() {
+    // Validate if the textarea is empty before submission
+    const essayContent = document.getElementById('essay-text').value.trim();
+    if (essayContent === "") {
+        alert("Please write your essay before submitting.");
+        return;
+    }
+    
+    // Stop the timer only if the textarea is not empty
+    clearInterval(timerInterval);
+
+    // Here you can handle the submission of the essay, such as saving it to a database or performing further processing.
+    // For demonstration purposes, let's just alert the content of the essay.
+    alert("Essay Submitted!\n\nEssay Content:\n" + essayContent);
+
+   // Disable the textarea to prevent further editing
+    document.getElementById('essay-text').disabled = true;
+
+    // You can add further processing or redirect the user to another page after submission.
+    essaySubmitted = true;
+    document.getElementById('finish-btn').style.display = 'inline-block';
+    document.getElementById('submit-btn').disabled = true; // Disable the submit button after submission
+    sessionStorage.setItem('essaySubmitted', 'true'); // Store the essay submission status in sessionStorage
+    window.onbeforeunload = null; // Disable the refresh functionality of the browser
+}
+
+
+        function finishExam() {
+            // Reset the timer and redirect the user to "getstarted.html"
+            clearInterval(timerInterval); // Stop the timer
+            sessionStorage.clear(); // Clear all sessionStorage data
+            window.location.href = "getstarted.html"; // Redirect to the getstarted page
+        }
+
+        function initializeExam() {
+            startOrResumeTimer();
+            // Restore the content of the textarea from sessionStorage
+            const savedEssayContent = sessionStorage.getItem('essayContent');
+            if (savedEssayContent) {
+                document.getElementById('essay-text').value = savedEssayContent;
+            }
+            // Restore the essay submission status from sessionStorage
+            const isEssaySubmitted = sessionStorage.getItem('essaySubmitted');
+            if (isEssaySubmitted === 'true') {
+                essaySubmitted = true;
+                document.getElementById('finish-btn').style.display = 'inline-block';
+                document.getElementById('submit-btn').disabled = true;
+                document.getElementById('essay-text').disabled = true; // Disable the textarea
+                window.onbeforeunload = null; // Disable the refresh functionality of the browser
+            }
+            // Setup event listeners after initializing the exam
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('submit-btn').addEventListener('click', submitEssay);
+            document.getElementById('finish-btn').addEventListener('click', finishExam);
+            // Save the content of the textarea to sessionStorage when it changes
+            document.getElementById('essay-text').addEventListener('input', function() {
+                sessionStorage.setItem('essayContent', this.value);
+            });
+        }
+
+        function checkTimerStatus() {
+            if (!essaySubmitted) {
+                // If the essay is not submitted when the timer reaches 0, automatically submit the essay
+                submitEssay();
+            }
+            // Enable only the "Finish Exam" button when the timer reaches 0
+            document.getElementById('finish-btn').disabled = false;     
+        }
+
+        initializeExam();
+
+        //for php code
+        function submitEssay() {
+            const essayContent = document.getElementById('essay-text').value.trim();
+            if (essayContent === "") {
+                alert("Please write your essay before submitting.");
+                return;
+            }
+
+            const xhr = new XMLHttpRequest();
+            const url = "store_essay.php";
+            const params = "essayContent=" + encodeURIComponent(essayContent);
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    alert("Essay Submitted Successfully!");
+                } else {
+                    alert("Error occurred while submitting the essay. Please try again later.");
+                }
+            };
+
+            xhr.send(params);
+
+            document.getElementById('essay-text').disabled = true;
+            document.getElementById('finish-btn').style.display = 'inline-block';
+            document.getElementById('submit-btn').disabled = true;
+            sessionStorage.setItem('essaySubmitted', 'true');
+            window.onbeforeunload = null;
+        }
+    </script>
+</body>
+</html>

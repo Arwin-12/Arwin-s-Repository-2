@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Exam Portal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            height: 100vh;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        header {
+            background: linear-gradient(90deg, #2c3e50, #34495e);
+            color: #fff;
+            padding: 1em;
+            text-align: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 2;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background: linear-gradient(90deg, #34495e, #2c3e50);
+            padding: 0.5em;
+            position: fixed;
+            top: 60px;
+            width: 100%;
+            z-index: 2;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5em 1em;
+            margin: 0 1em;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        nav a#login-signup {
+            color: #333;
+            /* Update color for better visibility */
+        }
+
+        nav a:hover,
+        nav a#login-signup:hover {
+            background-color: #555;
+        }
+
+        section {
+            padding: 2em;
+            text-align: center;
+            margin-top: 120px; /* Keep the original margin-top */
+            color: #fff; /* Set the text color to white */
+            padding-bottom: calc(50px + 1em); /* Adjust the padding-bottom to accommodate the footer */
+        }
+
+       footer {
+            background: linear-gradient(90deg, #2c3e50, #34495e);
+            color: #fff;
+            text-align: center;
+            padding: 1em;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            margin-right: 20px;
+            /* Adjust spacing as needed */
+        }
+
+        .dropdown a {
+            color: #fff;
+            /* Dropdown text color */
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown a:hover,
+        .dropdown.show .dropdown-content a:hover {
+            background-color: #555;
+            /* Hover background color */
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: linear-gradient(90deg, #2c3e50, #34495e);
+            /* Dropdown background color */
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 5px;
+        }
+
+        .dropdown-content a {
+            color: #fff;
+            /* Dropdown item text color */
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown.show .dropdown-content {
+            display: block;
+        }
+
+        .animated-text-container {
+            display: inline-block;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .animated-text {
+            color: #fff;
+            /* Text color */
+            position: relative;
+            opacity: 0;
+            transform: translateY(-50px);
+            animation: slideInText 1s ease-in-out forwards;
+        }
+
+        @keyframes slideInText {
+            0% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Remove list-style (dots) from ul */
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        /* Add margin-top to create space between footer and gif */
+        #illustration {
+            margin-bottom: 50px;
+        }
+
+        /* Custom styles for enhanced section content */
+        .feature {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+            text-align: left;
+        }
+
+        .feature img {
+            width: 120px;
+            height: 120px;
+            margin-right: 30px;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite alternate, slideInImage 1s ease-in-out forwards;
+        }
+
+        .feature p {
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        .feature:nth-child(even) {
+            flex-direction: row-reverse;
+            text-align: right;
+        }
+
+        .feature:nth-child(even) img {
+            margin-left: 30px;
+            margin-right: 0;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes slideInImage {
+            0% {
+                transform: translateX(-50px);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .animated {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Style for the button */
+        button {
+            background-color: #2c3e50;
+            /* Match header background color */
+            color: #fff;
+            /* Match header text color */
+            padding: 10px 20px;
+            /* Adjust padding as needed */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            /* Smooth transition on hover */
+        }
+
+        button:hover {
+            background-color: #34495e;
+            /* Darker shade for hover effect */
+        }
+
+    .feature p {
+        font-size: 18px;
+        line-height: 1.6;
+        padding: 20px;
+        background: linear-gradient(135deg, #ff8a00, #e52e71); /* Gradient background */
+        color: #fff; /* White text color */
+        border-radius: 15px; /* Rounded corners */
+        border: 2px solid #fff; /* White border */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+        transition: transform 0.3s ease, border-color 0.3s ease; /* Smooth transitions */
+    }
+
+    /* Add hover effect for paragraph content */
+    .feature p:hover {
+        transform: translateY(-3px); /* Add slight upward movement on hover */
+        border-color: #ff8a00; /* Change border color on hover */
+    }
+
+    .footer-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .center-button {
+        margin-bottom: 5px; /* Add margin to create space between button and footer */
+    }
+    
+    /* Adjusted CSS for user profile */
+.user-profile {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #fff;
+}
+
+.user-profile a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Online Examination System</h1>
+    </header>
+
+    <nav>
+        <a href="aboutus.html">About</a>
+        <a href="#">Services</a>
+        <div class="dropdown" id="loginDropdown">
+            <a href="#" id="loginSignup">Login / Register</a>
+            <div class="dropdown-content">
+                <a href="login.html">Student Login</a>
+                <a href="instructorlogin.html">Instructor Login</a>
+            </div>
+        </div>        
+    </nav>
+
+    <section>
+        <div class="animated-text-container">
+            <h2 class="animated-text">Empowering minds with Online Examination System</h2>
+        </div>
+        <div class="feature">
+            <img src="questionmark.jpg" alt="Feature 1">
+            <p>Randomized question sets to ensure fairness and integrity. Our system generates unique sets of questions for each exam, enhancing security and reliability.</p>
+        </div>
+        <div class="feature">
+            <img src="resultprocessing.jpg" alt="Feature 2">
+            <p>Instant and accurate result processing. Receive your exam results instantly with our advanced system, ensuring timely feedback.</p>
+        </div>
+        <div class="feature">
+            <img src="paperless2.jpg" alt="Feature 3">
+            <p>Efficient and paperless examination environment. Embrace sustainability and efficiency with our digital exam platform, eliminating the need for paper-based assessments.</p>
+        </div>
+        <div class="feature">
+            <img src="designer1.png" alt="Feature 4">
+            <p>Customizable assessments with various question formats. Tailor your exams to suit your needs with our versatile assessment options, including multiple-choice, essay, and more.</p>
+        </div>
+        <div class="feature">
+            <img src="accessibility.jpg" alt="Feature 5">
+            <p>Accessibility and flexibility for remote assessments. Take exams from anywhere, anytime with our user-friendly interface and remote proctoring capabilities, ensuring equal opportunities for all.</p>
+        </div>
+        <div class="footer-container">
+            <div class="center-button">
+                <!-- Add an ID to the button for easier targeting -->
+                <button id="getStartedBtn">Get Started</button>
+            </div>
+            <footer>
+            &copy; 2024 @OES. All rights reserved.
+            </footer>
+        </div>
+
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Function to add animation class to all features
+            function animateAllFeatures() {
+                var features = document.querySelectorAll('.feature');
+                features.forEach(function (feature) {
+                    feature.classList.add('animated');
+                });
+            }
+    
+            // Function to animate feature images when they come into view
+            function animateFeatures(entries, observer) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animated');
+                        observer.unobserve(entry.target); // Stop observing once animated
+                    }
+                });
+            }
+    
+            // Create an intersection observer
+            var observer = new IntersectionObserver(animateFeatures, {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            });
+    
+            // Observe each feature image
+            var featureImages = document.querySelectorAll('.feature img');
+            featureImages.forEach(function (img) {
+                observer.observe(img);
+            });
+    
+            // Trigger animation for all features on page load
+            animateAllFeatures();
+    
+            // Toggle dropdown when clicking on "Login / Signup"
+            document.getElementById('loginSignup').addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent default anchor tag behavior
+                var dropdownContent = document.querySelector('.dropdown-content');
+                if (dropdownContent.style.display === "none" || dropdownContent.style.display === "") {
+                    dropdownContent.style.display = "block";
+                } else {
+                    dropdownContent.style.display = "none";
+                }
+                event.stopPropagation(); // Prevent event bubbling
+            });
+    
+            // Close dropdown when clicking anywhere on the page outside of it
+            document.body.addEventListener('click', function (event) {
+                var dropdownContent = document.querySelector('.dropdown-content');
+                if (!event.target.closest('.dropdown') && dropdownContent.style.display === "block") {
+                    dropdownContent.style.display = "none";
+                }
+            });
+    
+            // Debugging function to check if login links are being clicked
+            document.querySelectorAll('.dropdown-content a').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    console.log('Login link clicked:', this.getAttribute('href'));
+                });
+            });
+
+            setTimeout(function () {
+                window.scrollTo(0, 0);
+            }, 100);
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Function to check if the user is logged in
+            function isLoggedIn() {
+                return "<?php echo isset($_SESSION['username']) ? 'true' : 'false'; ?>";
+            }
+
+            // Function to handle click event on "Get Started" button
+            function handleGetStartedClick() {
+                if (isLoggedIn() === 'true') {
+                    // User is logged in, redirect to getstarted.html
+                    window.location.href = 'getstarted.html';
+                } else {
+                    // User is not logged in, show alert message
+                    alert('Please login or register to get started');
+                }
+            }
+
+            // Add click event listener to "Get Started" button
+            document.getElementById('getStartedBtn').addEventListener('click', handleGetStartedClick);
+        });
+    </script>
+    
+</body>
+
+</html>
